@@ -1,13 +1,13 @@
-package host.plas.exampleproject.config;
+package host.plas.realheight.config;
 
 import gg.drak.thebase.storage.resources.flat.simple.SimpleConfiguration;
 import host.plas.bou.sql.ConnectorSet;
 import host.plas.bou.sql.DatabaseType;
-import host.plas.exampleproject.ExampleProject;
+import host.plas.realheight.RealHeight;
 
 public class DatabaseConfig extends SimpleConfiguration {
     public DatabaseConfig() {
-        super("database-config.yml", ExampleProject.getInstance(), false);
+        super("database-config.yml", RealHeight.getInstance(), false);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class DatabaseConfig extends SimpleConfiguration {
     public String getSqliteFileName() {
         reloadResource();
 
-        return getOrSetDefault("database.sqlite-file-name", "example.db");
+        return getOrSetDefault("database.sqlite-file-name", "heights.db");
     }
 
     public ConnectorSet getConnectorSet() {

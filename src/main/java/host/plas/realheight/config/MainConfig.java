@@ -1,11 +1,11 @@
-package host.plas.exampleproject.config;
+package host.plas.realheight.config;
 
 import gg.drak.thebase.storage.resources.flat.simple.SimpleConfiguration;
-import host.plas.exampleproject.ExampleProject;
+import host.plas.realheight.RealHeight;
 
 public class MainConfig extends SimpleConfiguration {
     public MainConfig() {
-        super("config.yml", ExampleProject.getInstance(), false);
+        super("config.yml", RealHeight.getInstance(), false);
     }
 
     @Override

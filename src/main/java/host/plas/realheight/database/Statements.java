@@ -1,4 +1,4 @@
-package host.plas.exampleproject.database;
+package host.plas.realheight.database;
 
 import host.plas.bou.sql.ConnectorSet;
 import lombok.Getter;
@@ -12,16 +12,16 @@ public class Statements {
         CREATE_TABLES(
                 "CREATE TABLE IF NOT EXISTS `%table_prefix%Players` ( " +
                 "Uuid VARCHAR(36) NOT NULL, " +
-                "Name VARCHAR(16) NOT NULL, " +
+                "Scale DOUBLE NOT NULL, " +
                 "PRIMARY KEY (Uuid) " +
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;;"
         ),
         PUSH_PLAYER_MAIN("INSERT INTO `%table_prefix%Players` ( " +
-                "Uuid, Name " +
+                "Uuid, Scale " +
                 ") VALUES ( " +
                 "?, ? " +
                 ") ON DUPLICATE KEY UPDATE " +
-                "Name = ?" +
+                "Scale = ?" +
                 ";"),
         PULL_PLAYER_MAIN("SELECT * FROM `%table_prefix%Players` WHERE Uuid = ?;"),
         PLAYER_EXISTS("SELECT COUNT(*) FROM `%table_prefix%Players` WHERE Uuid = ?;"),
@@ -39,13 +39,13 @@ public class Statements {
         CREATE_DATABASE(""),
         CREATE_TABLES(
                 "CREATE TABLE IF NOT EXISTS `%table_prefix%Players` ( " +
-                "Uuid TEXT NOT NULL, " +
-                "Name TEXT NOT NULL, " +
+                "Uuid VARCHAR(36) NOT NULL, " +
+                "Scale DOUBLE NOT NULL, " +
                 "PRIMARY KEY (Uuid) " +
                 ");;"
         ),
         PUSH_PLAYER_MAIN("INSERT OR REPLACE INTO `%table_prefix%Players` ( " +
-                "Uuid, Name " +
+                "Uuid, Scale " +
                 ") VALUES ( " +
                 "?, ? " +
                 ");"),

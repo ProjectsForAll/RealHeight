@@ -1,6 +1,6 @@
-package host.plas.exampleproject.events.own;
+package host.plas.realheight.events.own;
 
-import host.plas.exampleproject.data.PlayerData;
+import host.plas.realheight.data.PlayerData;
 import lombok.Getter;
 import lombok.Setter;
 

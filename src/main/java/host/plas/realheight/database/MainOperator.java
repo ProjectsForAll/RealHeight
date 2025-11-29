@@ -1,17 +1,18 @@
-package host.plas.exampleproject.database;
+package host.plas.realheight.database;
 
 import gg.drak.thebase.async.AsyncUtils;
 import host.plas.bou.sql.DBOperator;
-import host.plas.exampleproject.ExampleProject;
-import host.plas.exampleproject.data.PlayerData;
+import host.plas.bou.sql.DatabaseType;
+import host.plas.realheight.RealHeight;
+import host.plas.realheight.data.PlayerData;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ExampleOperator extends DBOperator {
-    public ExampleOperator() {
-        super(ExampleProject.getDatabaseConfig().getConnectorSet(), ExampleProject.getInstance());
+public class MainOperator extends DBOperator {
+    public MainOperator() {
+        super(RealHeight.getDatabaseConfig().getConnectorSet(), RealHeight.getInstance());
     }
 
     @Override
@@ -42,16 +43,20 @@ public class ExampleOperator extends DBOperator {
 
     public CompletableFuture<Void> putPlayerThreaded(PlayerData playerData) {
         return AsyncUtils.executeAsync(() -> {
-            ensureDatabase();
+            ensureUsable();
 
             String s1 = Statements.getStatement(Statements.StatementType.PUSH_PLAYER_MAIN, getConnectorSet());
 
             execute(s1, stmt -> {
                 try {
                     stmt.setString(1, playerData.getIdentifier());
-                    stmt.setString(2, playerData.getName());
+                    stmt.setDouble(2, playerData.getScale());
+
+                    if (getType() == DatabaseType.MYSQL) {
+                        stmt.setDouble(3, playerData.getScale());
+                    }
                 } catch (Throwable e) {
-                    ExampleProject.getInstance().logWarning("Failed to set values for statement: " + s1, e);
+                    RealHeight.getInstance().logWarning("Failed to set values for statement: " + s1, e);
                 }
             });
         });
@@ -59,7 +64,7 @@ public class ExampleOperator extends DBOperator {
 
     public CompletableFuture<Optional<PlayerData>> pullPlayerThreaded(String uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            ensureDatabase();
+            ensureUsable();
 
             String s1 = Statements.getStatement(Statements.StatementType.PULL_PLAYER_MAIN, getConnectorSet());
 
@@ -69,18 +74,18 @@ public class ExampleOperator extends DBOperator {
                 try {
                     stmt.setString(1, uuid);
                 } catch (Throwable e) {
-                    ExampleProject.getInstance().logWarning("Failed to set values for statement: " + s1, e);
+                    RealHeight.getInstance().logWarning("Failed to set values for statement: " + s1, e);
                 }
             }, rs -> {
                 try {
                     if (rs.next()) {
-                        String name = rs.getString("Name");
+                        double scale = rs.getDouble("Scale");
 
-                        PlayerData playerData = new PlayerData(uuid, name);
+                        PlayerData playerData = new PlayerData(uuid, scale);
                         ref.set(Optional.of(playerData));
                     }
                 } catch (Throwable e) {
-                    ExampleProject.getInstance().logWarning("Failed to get values from result set for statement: " + s1, e);
+                    RealHeight.getInstance().logWarning("Failed to get values from result set for statement: " + s1, e);
                 }
             });
 

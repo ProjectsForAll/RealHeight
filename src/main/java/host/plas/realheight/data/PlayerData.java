@@ -1,46 +1,52 @@
-package host.plas.exampleproject.data;
+package host.plas.realheight.data;
 
+import gg.drak.thebase.async.AsyncUtils;
 import gg.drak.thebase.objects.Identifiable;
-import host.plas.exampleproject.ExampleProject;
-import host.plas.exampleproject.events.own.PlayerCreationEvent;
+import host.plas.realheight.RealHeight;
+import host.plas.realheight.events.own.PlayerCreationEvent;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 @Getter @Setter
 public class PlayerData implements Identifiable {
     private String identifier;
 
-    private String name;
+    private double scale;
 
     private AtomicBoolean fullyLoaded;
 
-    public PlayerData(String identifier, String name) {
+    public PlayerData(String identifier, double scale) {
         this.identifier = identifier;
-        this.name = name;
+
+        this.scale = scale;
+
         this.fullyLoaded = new AtomicBoolean(false);
     }
 
-    public PlayerData(Player player) {
-        this(player.getUniqueId().toString(), player.getName());
+    public PlayerData(String uuid) {
+        this(uuid, 1.0d);
     }
 
-    public PlayerData(String uuid) {
-        this(uuid, "");
+    public PlayerData(Player player) {
+        this(player.getUniqueId().toString());
     }
 
     public Optional<Player> asPlayer() {
         try {
             return Optional.ofNullable(Bukkit.getPlayer(UUID.fromString(identifier)));
         } catch (Throwable e) {
-            ExampleProject.getInstance().logWarning("Failed to get player from identifier: " + identifier, e);
+            RealHeight.getInstance().logWarning("Failed to get player from identifier: " + identifier, e);
 
             return Optional.empty();
         }
@@ -50,7 +56,7 @@ public class PlayerData implements Identifiable {
         try {
             return Optional.of(Bukkit.getOfflinePlayer(UUID.fromString(identifier)));
         } catch (Throwable e) {
-            ExampleProject.getInstance().logWarning("Failed to get offline player from identifier: " + identifier, e);
+            RealHeight.getInstance().logWarning("Failed to get offline player from identifier: " + identifier, e);
 
             return Optional.empty();
         }
@@ -81,7 +87,7 @@ public class PlayerData implements Identifiable {
 
         future.whenComplete((data, error) -> {
             if (error != null) {
-                ExampleProject.getInstance().logWarning("Failed to augment player data", error);
+                RealHeight.getInstance().logWarning("Failed to augment player data", error);
 
                 this.fullyLoaded.set(true);
                 return;
@@ -90,7 +96,7 @@ public class PlayerData implements Identifiable {
             if (data.isPresent()) {
                 PlayerData newData = data.get();
 
-                this.name = newData.getName();
+                this.scale = newData.getScale();
             } else {
                 if (! isGet) {
                     new PlayerCreationEvent(this).fire();
@@ -120,5 +126,23 @@ public class PlayerData implements Identifiable {
             Thread.onSpinWait();
         }
         return this;
+    }
+
+    public void whenLoaded(Consumer<PlayerData> consumer) {
+        AsyncUtils.executeAsync(() -> {
+            waitUntilFullyLoaded();
+            consumer.accept(this);
+        });
+    }
+
+    public void setAsScale() {
+        asPlayer().ifPresent(player -> {
+            AttributeInstance instance = player.getAttribute(Attribute.SCALE);
+            if (instance != null) {
+                if (instance.getBaseValue() == this.getScale()) return;
+
+                instance.setBaseValue(this.getScale());
+            }
+        });
     }
 }

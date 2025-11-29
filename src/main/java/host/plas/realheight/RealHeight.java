@@ -1,30 +1,38 @@
-package host.plas.exampleproject;
+package host.plas.realheight;
 
 import host.plas.bou.BetterPlugin;
-import host.plas.exampleproject.config.DatabaseConfig;
-import host.plas.exampleproject.config.MainConfig;
-import host.plas.exampleproject.data.PlayerManager;
-import host.plas.exampleproject.database.ExampleOperator;
-import host.plas.exampleproject.events.MainListener;
+import host.plas.realheight.commands.HeightCMD;
+import host.plas.realheight.config.DatabaseConfig;
+import host.plas.realheight.config.MainConfig;
+import host.plas.realheight.data.PlayerManager;
+import host.plas.realheight.database.MainOperator;
+import host.plas.realheight.events.MainListener;
+import host.plas.realheight.timers.HeightTimer;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public final class ExampleProject extends BetterPlugin {
+public final class RealHeight extends BetterPlugin {
     @Getter @Setter
-    private static ExampleProject instance;
+    private static RealHeight instance;
     @Getter @Setter
     private static MainConfig mainConfig;
     @Getter @Setter
     private static DatabaseConfig databaseConfig;
 
     @Getter @Setter
-    private static ExampleOperator database;
+    private static MainOperator database;
 
     @Getter @Setter
     private static MainListener mainListener;
 
-    public ExampleProject() {
+    @Getter @Setter
+    private static HeightCMD heightCMD;
+
+    @Getter @Setter
+    private static HeightTimer heightTimer;
+
+    public RealHeight() {
         super();
     }
 
@@ -36,14 +44,22 @@ public final class ExampleProject extends BetterPlugin {
         setMainConfig(new MainConfig()); // Instantiate the main config and set it.
         setDatabaseConfig(new DatabaseConfig()); // Instantiate the database config and set it.
 
-        setDatabase(new ExampleOperator()); // Instantiate the database operator and set it. // Uses the database config.
+        setDatabase(new MainOperator()); // Instantiate the database operator and set it. // Uses the database config.
 
         setMainListener(new MainListener()); // Instantiate the main listener and set it.
+
+        setHeightCMD(new HeightCMD());
+
+        setHeightTimer(new HeightTimer());
     }
 
     @Override
     public void onBaseDisable() {
         // Plugin shutdown logic
+        if (getHeightTimer() != null) {
+            getHeightTimer().cancel();
+        }
+
         PlayerManager.getLoadedPlayers().forEach(playerData -> {
             // Save and unload all loaded player data.
             // Saves it in sync (hence the false) so it doesn't lose data.

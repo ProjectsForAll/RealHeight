@@ -1,7 +1,9 @@
-package host.plas.exampleproject.events;
+package host.plas.realheight.events;
 
-import host.plas.exampleproject.data.PlayerData;
-import host.plas.exampleproject.data.PlayerManager;
+import host.plas.realheight.data.PlayerData;
+import host.plas.realheight.data.PlayerManager;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -13,6 +15,7 @@ public class MainListener extends AbstractConglomerate {
         Player player = event.getPlayer();
 
         PlayerData data = PlayerManager.getOrCreatePlayer(player);
+        data.whenLoaded(PlayerData::setAsScale);
     }
 
     @EventHandler
