@@ -2,6 +2,7 @@ package host.plas.realheight.events;
 
 import host.plas.realheight.data.PlayerData;
 import host.plas.realheight.data.PlayerManager;
+import host.plas.realheight.utils.HeightMaths;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
@@ -24,5 +25,8 @@ public class MainListener extends AbstractConglomerate {
 
         PlayerData data = PlayerManager.getOrCreatePlayer(player);
         data.saveAndUnload();
+
+        AttributeInstance ai = player.getAttribute(Attribute.SCALE);
+        ai.setBaseValue(HeightMaths.DEFAULT_SCALE);
     }
 }

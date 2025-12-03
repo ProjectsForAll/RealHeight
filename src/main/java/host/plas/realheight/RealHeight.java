@@ -4,12 +4,17 @@ import host.plas.bou.BetterPlugin;
 import host.plas.realheight.commands.HeightCMD;
 import host.plas.realheight.config.DatabaseConfig;
 import host.plas.realheight.config.MainConfig;
+import host.plas.realheight.data.PlayerData;
 import host.plas.realheight.data.PlayerManager;
 import host.plas.realheight.database.MainOperator;
 import host.plas.realheight.events.MainListener;
 import host.plas.realheight.timers.HeightTimer;
+import host.plas.realheight.utils.HeightMaths;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 
 @Getter @Setter
 public final class RealHeight extends BetterPlugin {
@@ -39,14 +44,14 @@ public final class RealHeight extends BetterPlugin {
     @Override
     public void onBaseEnabled() {
         // Plugin startup logic
-        setInstance(this); // Set the instance of the plugin. // For use in other classes.
+        setInstance(this);
 
-        setMainConfig(new MainConfig()); // Instantiate the main config and set it.
-        setDatabaseConfig(new DatabaseConfig()); // Instantiate the database config and set it.
+        setMainConfig(new MainConfig());
+        setDatabaseConfig(new DatabaseConfig());
 
-        setDatabase(new MainOperator()); // Instantiate the database operator and set it. // Uses the database config.
+        setDatabase(new MainOperator());
 
-        setMainListener(new MainListener()); // Instantiate the main listener and set it.
+        setMainListener(new MainListener());
 
         setHeightCMD(new HeightCMD());
 
@@ -60,10 +65,11 @@ public final class RealHeight extends BetterPlugin {
             getHeightTimer().cancel();
         }
 
-        PlayerManager.getLoadedPlayers().forEach(playerData -> {
-            // Save and unload all loaded player data.
-            // Saves it in sync (hence the false) so it doesn't lose data.
-            playerData.saveAndUnload(false);
+        PlayerManager.getLoadedPlayers().forEach(PlayerData::saveAndUnload);
+
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            AttributeInstance ai = player.getAttribute(Attribute.SCALE);
+            ai.setBaseValue(HeightMaths.DEFAULT_SCALE);
         });
     }
 }

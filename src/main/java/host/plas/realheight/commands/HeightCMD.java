@@ -1,25 +1,25 @@
 package host.plas.realheight.commands;
 
 
-import host.plas.bou.commands.BuildableCommand;
-import host.plas.bou.commands.CommandBuilder;
 import host.plas.bou.commands.CommandContext;
+import host.plas.bou.commands.SimplifiedCommand;
+import host.plas.bou.utils.EntityUtils;
+import host.plas.bou.utils.MathUtils;
 import host.plas.realheight.RealHeight;
 import host.plas.realheight.data.PlayerData;
 import host.plas.realheight.data.PlayerManager;
 import host.plas.realheight.utils.HeightMaths;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Optional;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 @Getter @Setter
-public class HeightCMD extends BuildableCommand {
+public class HeightCMD extends SimplifiedCommand {
     public HeightCMD() {
-        super(new CommandBuilder("setheight", RealHeight.getInstance()).setBasePermission("realheight.command.setheight").setDescription("Set your height manually."));
+        super("height", RealHeight.getInstance());
     }
 
     @Override
@@ -56,6 +56,19 @@ public class HeightCMD extends BuildableCommand {
     }
 
     public boolean set(CommandContext ctx, Player player, Optional<Player> other) {
+        boolean samePlayer = other.isPresent() && other.get().getUniqueId().equals(player.getUniqueId());
+
+        if (! player.hasPermission(getBasePermission() + ".set")) {
+            ctx.sendMessage("&cYou do not have permission to set heights.");
+            return false;
+        }
+        if (! samePlayer) {
+            if (! player.hasPermission(getBasePermission() + ".set.others")) {
+                ctx.sendMessage("&cYou do not have permission to set other players' heights.");
+                return false;
+            }
+        }
+
         boolean isCm = false; // true = centimeters, false = feet
         double height = 0;
 
@@ -98,7 +111,7 @@ public class HeightCMD extends BuildableCommand {
             scale = HeightMaths.getScaleOfFt(height);
         }
 
-        if (other.isPresent()) {
+        if (! samePlayer) {
             Player otherPlayer = other.get();
 
             PlayerData data = PlayerManager.getOrCreatePlayer(otherPlayer);
@@ -122,7 +135,20 @@ public class HeightCMD extends BuildableCommand {
     }
 
     public boolean get(CommandContext ctx, Player player, Optional<Player> other) {
-        if (other.isPresent()) {
+        boolean samePlayer = other.isPresent() && other.get().getUniqueId().equals(player.getUniqueId());
+
+        if (! player.hasPermission(getBasePermission() + ".get")) {
+            ctx.sendMessage("&cYou do not have permission to get heights.");
+            return false;
+        }
+        if (! samePlayer) {
+            if (! player.hasPermission(getBasePermission() + ".get.others")) {
+                ctx.sendMessage("&cYou do not have permission to get other players' heights.");
+                return false;
+            }
+        }
+
+        if (! samePlayer) {
             Player otherPlayer = other.get();
 
             PlayerData data = PlayerManager.getOrCreatePlayer(otherPlayer);
@@ -130,21 +156,34 @@ public class HeightCMD extends BuildableCommand {
             double heightCm = HeightMaths.getCmOfScale(scale);
             double heightFt = HeightMaths.getFtOfScale(scale);
 
-            ctx.sendMessage(otherPlayer.getDisplayName() + "&7'&es current height is &a" + String.format("%.2f cm", heightCm) + " &7(&a" + String.format("%.2f ft", heightFt) + "&7)&8. (&bScale&7: &a" + String.format("%.4f", scale) + "&7)");
+            ctx.sendMessage(otherPlayer.getDisplayName() + "&7'&es current height is &a" + String.format("%.2f &fcm", heightCm) + " &7(&a" + String.format("%.2f &fft", heightFt) + "&7)&8. (&bScale&7: &a" + String.format("%.4f", scale) + "&7)");
         } else {
             PlayerData data = PlayerManager.getOrCreatePlayer(player);
             double scale = data.getScale();
             double heightCm = HeightMaths.getCmOfScale(scale);
             double heightFt = HeightMaths.getFtOfScale(scale);
 
-            ctx.sendMessage("&eYour current height is &a" + String.format("%.2f cm", heightCm) + " &7(&a" + String.format("%.2f ft", heightFt) + "&7)&8. (&bScale&7: &a" + String.format("%.4f", scale) + "&7)");
+            ctx.sendMessage("&eYour current height is &a" + String.format("%.2f &fcm", heightCm) + " &7(&a" + String.format("%.2f &fft", heightFt) + "&7)&8. (&bScale&7: &a" + String.format("%.4f", scale) + "&7)");
         }
 
         return true;
     }
 
     public boolean reset(CommandContext ctx, Player player, Optional<Player> other) {
-        if (other.isPresent()) {
+        boolean samePlayer = other.isPresent() && other.get().getUniqueId().equals(player.getUniqueId());
+
+        if (! player.hasPermission(getBasePermission() + ".reset")) {
+            ctx.sendMessage("&cYou do not have permission to reset heights.");
+            return false;
+        }
+        if (! samePlayer) {
+            if (! player.hasPermission(getBasePermission() + ".reset.others")) {
+                ctx.sendMessage("&cYou do not have permission to reset other players' heights.");
+                return false;
+            }
+        }
+
+        if (! samePlayer) {
             Player otherPlayer = other.get();
 
             PlayerData data = PlayerManager.getOrCreatePlayer(otherPlayer);
@@ -169,48 +208,50 @@ public class HeightCMD extends BuildableCommand {
 
     @Override
     public ConcurrentSkipListSet<String> tabComplete(CommandContext ctx) {
+        return doTabCompletion(ctx);
+    }
+
+    public static ConcurrentSkipListSet<String> doTabCompletion(CommandContext ctx) {
         ConcurrentSkipListSet<String> results = new ConcurrentSkipListSet<>();
 
         if (ctx.getArgCount() <= 1) {
-            String partial = ctx.getStringArg(0).toLowerCase();
-            if ("set".startsWith(partial)) results.add("set");
-            if ("get".startsWith(partial)) results.add("get");
-            if ("reset".startsWith(partial)) results.add("reset");
+            results.add("set");
+            results.add("get");
+            results.add("reset");
         }
 
         if (ctx.getArgCount() == 2) {
             String action = ctx.getStringArg(0).toLowerCase();
             if (action.equals("set")) {
                 String partial = ctx.getStringArg(1).toLowerCase();
-                if ("?".startsWith(partial)) results.add("?");
-                else {
+                results.add("?");
+
+                if (isNumber(partial)) {
                     if (! partial.endsWith("c")) results.add(partial + "c");
                     if (! partial.endsWith("m")) results.add(partial + "m");
                     if (! partial.endsWith("f")) results.add(partial + "f");
                     if (! partial.endsWith("i")) results.add(partial + "i");
                 }
             } else if (action.equals("get") || action.equals("reset")) {
-                results.addAll(getPlayerNamesForArg(ctx, 1)); // 1, because 2 is the count, and index is count - 1
+                results.addAll(EntityUtils.getOnlinePlayerNames());
             }
         }
 
         if (ctx.getArgCount() == 3) {
-            results.addAll(getPlayerNamesForArg(ctx, 2)); // 2, because 3 is the count, and index is count - 1
+            results.addAll(EntityUtils.getOnlinePlayerNames());
         }
 
         return results;
     }
 
-    public static ConcurrentSkipListSet<String> getPlayerNamesForArg(CommandContext ctx, int argIndex) {
-        ConcurrentSkipListSet<String> results = new ConcurrentSkipListSet<>();
+    public static boolean isNumber(String str) {
+        if (str == null) return false;
 
-        String partial = ctx.getStringArg(argIndex).toLowerCase();
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.getName().toLowerCase().startsWith(partial)) {
-                results.add(p.getName());
-            }
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (Throwable e) {
+            return false;
         }
-
-        return results;
     }
 }

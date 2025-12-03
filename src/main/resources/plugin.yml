@@ -9,3 +9,11 @@ folia-supported: true
 
 depend:
   - BukkitOfUtils
+
+commands:
+  height:
+    description: Manage a player's height.
+    permission: realheight.command.height
+    aliases:
+      - heights
+      - realheight
