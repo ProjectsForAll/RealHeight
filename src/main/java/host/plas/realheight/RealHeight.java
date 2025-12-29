@@ -47,9 +47,12 @@ public final class RealHeight extends BetterPlugin {
         setInstance(this);
 
         setMainConfig(new MainConfig());
-        setDatabaseConfig(new DatabaseConfig());
 
-        setDatabase(new MainOperator());
+        if (! getMainConfig().isUseApi()) {
+            setDatabaseConfig(new DatabaseConfig());
+
+            setDatabase(new MainOperator());
+        }
 
         setMainListener(new MainListener());
 

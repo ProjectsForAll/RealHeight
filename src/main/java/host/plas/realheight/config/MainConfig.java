@@ -5,11 +5,17 @@ import host.plas.realheight.RealHeight;
 
 public class MainConfig extends SimpleConfiguration {
     public MainConfig() {
-        super("config.yml", RealHeight.getInstance(), false);
+        super("config.yml", RealHeight.getInstance(), true);
     }
 
     @Override
     public void init() {
+        isUseApi();
+    }
 
+    public boolean isUseApi() {
+        reloadResource();
+
+        return getOrSetDefault("use-api", true);
     }
 }

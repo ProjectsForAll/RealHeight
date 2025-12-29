@@ -1,7 +1,9 @@
 ext {
     IMPL = [
+            'com.konghq:unirest-java:3.14.5',
     ]
     SHADOW = [
+            'com.konghq:unirest-java:3.14.5',
     ]
     ANNO = [
             'gg.drak:BukkitOfUtils:1.16.1',

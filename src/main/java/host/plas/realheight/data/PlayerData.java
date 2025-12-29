@@ -38,7 +38,7 @@ public class PlayerData implements Identifiable {
         this(uuid, 1.0d);
     }
 
-    public PlayerData(Player player) {
+    public PlayerData(OfflinePlayer player) {
         this(player.getUniqueId().toString());
     }
 

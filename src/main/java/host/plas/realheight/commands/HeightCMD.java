@@ -4,7 +4,6 @@ package host.plas.realheight.commands;
 import host.plas.bou.commands.CommandContext;
 import host.plas.bou.commands.SimplifiedCommand;
 import host.plas.bou.utils.EntityUtils;
-import host.plas.bou.utils.MathUtils;
 import host.plas.realheight.RealHeight;
 import host.plas.realheight.data.PlayerData;
 import host.plas.realheight.data.PlayerManager;

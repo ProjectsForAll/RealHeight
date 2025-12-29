@@ -1,0 +1,2 @@
+# Whether to use the DrakAPI for this plugin
+use-api: true

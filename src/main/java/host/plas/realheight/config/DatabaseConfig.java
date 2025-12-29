@@ -49,13 +49,13 @@ public class DatabaseConfig extends SimpleConfiguration {
     public String getDatabaseDatabase() {
         reloadResource();
 
-        return getOrSetDefault("database.database", "example");
+        return getOrSetDefault("database.database", "heights");
     }
 
     public String getDatabaseTablePrefix() {
         reloadResource();
 
-        return getOrSetDefault("database.table-prefix", "example_");
+        return getOrSetDefault("database.table-prefix", "heights_");
     }
 
     public DatabaseType getDatabaseType() {
