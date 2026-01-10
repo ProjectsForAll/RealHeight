@@ -55,7 +55,7 @@ public class HeightCMD extends SimplifiedCommand {
     }
 
     public boolean set(CommandContext ctx, Player player, Optional<Player> other) {
-        boolean samePlayer = other.isPresent() && other.get().getUniqueId().equals(player.getUniqueId());
+        boolean samePlayer = other.isEmpty() || other.get().getUniqueId().equals(player.getUniqueId());
 
         if (! player.hasPermission(getBasePermission() + ".set")) {
             ctx.sendMessage("&cYou do not have permission to set heights.");
@@ -134,7 +134,7 @@ public class HeightCMD extends SimplifiedCommand {
     }
 
     public boolean get(CommandContext ctx, Player player, Optional<Player> other) {
-        boolean samePlayer = other.isPresent() && other.get().getUniqueId().equals(player.getUniqueId());
+        boolean samePlayer = other.isEmpty() || other.get().getUniqueId().equals(player.getUniqueId());
 
         if (! player.hasPermission(getBasePermission() + ".get")) {
             ctx.sendMessage("&cYou do not have permission to get heights.");
@@ -169,7 +169,7 @@ public class HeightCMD extends SimplifiedCommand {
     }
 
     public boolean reset(CommandContext ctx, Player player, Optional<Player> other) {
-        boolean samePlayer = other.isPresent() && other.get().getUniqueId().equals(player.getUniqueId());
+        boolean samePlayer = other.isEmpty() || other.get().getUniqueId().equals(player.getUniqueId());
 
         if (! player.hasPermission(getBasePermission() + ".reset")) {
             ctx.sendMessage("&cYou do not have permission to reset heights.");
